@@ -12,5 +12,5 @@ location: {
     index: '2dsphere'
 }
 });
-console.log(DevSchema)
+
 module.exports = mongoose.model('Dev', DevSchema)

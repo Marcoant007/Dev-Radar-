@@ -4,8 +4,8 @@ import { StyleSheet, Image, Text, TextInput, TouchableOpacity, Alert } from 'rea
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { getCurrentPositionAsync, requestForegroundPermissionsAsync} from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
-import Api from '../services/Api';
 import api from '../services/Api';
+import {connect, disconnect, subscribeToNewDevs} from '../services/socket';
 
 
 function Main({navigation}){
@@ -35,6 +35,16 @@ function Main({navigation}){
         loadInitialPosition();
     }, []);
 
+    useEffect(() => {
+        subscribeToNewDevs(dev => setDevs([...devs,dev]));
+    }, [devs]);
+
+    function setupWebsocket(){
+        disconnect();
+        const {latitude, longitude} = currentRegion
+        connect(latitude, longitude, techs);
+    }
+
 
     async function loadDevs(){
         const { latitude, longitude } = currentRegion;
@@ -47,9 +57,9 @@ function Main({navigation}){
         });
 
 
-        setDevs(response.data.devs)
+        setDevs(response.data.devs);
         Alert.alert('Programadores', `total de  ${response.data.devs.length} programadores encontrados`)
-        console.log(response.data.devs.length)
+        setupWebsocket();
     }
 
     function handleRegionChanged(region){
